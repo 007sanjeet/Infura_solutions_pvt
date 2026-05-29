@@ -9,6 +9,7 @@ const Jobs = () => {
   const [jobs, setJobs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
   
   // Search and Filter States
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
@@ -93,6 +94,14 @@ setTotalJobs(
     fetchJobs();
   }, [searchTerm, selectedCategory, selectedLocation, selectedJobType, selectedExperience, currentPage]);
 
+  useEffect(() => {
+  const timer = setTimeout(() => {
+    setPageLoading(false);
+  }, 1500);
+
+  return () => clearTimeout(timer);
+}, []);
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     updateUrlParams({ search: searchTerm, page: 1 });
@@ -137,8 +146,50 @@ setTotalJobs(
     window.scrollTo({ top: 180, behavior: 'smooth' });
   };
 
-  const jobTypes = ['Full-Time', 'Part-Time', 'Contract', 'Temporary', 'Remote'];
-  const expLevels = ['Entry Level', 'Mid Level', 'Senior / Principal', 'Executive / C-Suite'];
+  const jobTypes = [
+  'Full-Time',
+  'Part-Time',
+  'Contract',
+  'Temporary',
+  'Remote'
+];
+
+const expLevels = [
+  'Entry Level',
+  'Mid Level',
+  'Senior / Principal',
+  'Executive / C-Suite'
+];
+
+
+// ================= LOADER START =================
+if (pageLoading) {
+  return (
+    <div className="fixed inset-0 bg-secondary-light flex items-center justify-center z-50">
+      <div className="flex flex-col items-center gap-5">
+
+        {/* Spinner */}
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 border-[3px] border-slate-200 rounded-full"></div>
+
+          <div className="absolute inset-0 border-[3px] border-gold border-t-transparent rounded-full animate-spin"></div>
+        </div>
+
+        {/* Brand Text */}
+        <div className="text-center">
+          <h2 className="font-serif text-2xl text-dark font-semibold">
+            Infura Solutions
+          </h2>
+
+          <p className="text-xs uppercase tracking-[4px] text-dark-muted mt-2">
+            Loading Jobs...
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+// ================= LOADER END =================
 
   return (
     <div className="pt-28 pb-16 bg-secondary-light min-h-screen">

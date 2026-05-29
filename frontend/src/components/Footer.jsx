@@ -251,12 +251,12 @@ const Footer = () => {
                     disabled={loading}
                     className="px-3 text-gold hover:text-white transition-colors"
                   >
-                   <Send
-  size={16}
-  className={
-    loading ? 'animate-pulse' : ''
-  }
-/>
+                    <Send
+                      size={16}
+                      className={
+                        loading ? 'animate-pulse' : ''
+                      }
+                    />
                   </button>
                 </div>
 

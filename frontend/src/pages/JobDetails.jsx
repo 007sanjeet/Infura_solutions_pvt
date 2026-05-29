@@ -9,11 +9,12 @@ const JobDetails = () => {
   const [job, setJob] = useState(null);
   const [similarJobs, setSimilarJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Application Form States
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [experience, setExperience] = useState('');
   const [coverLetter, setCoverLetter] = useState('');
   const [resume, setResume] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -65,19 +66,19 @@ const JobDetails = () => {
       formData.append('coverLetter', coverLetter);
       formData.append('resume', resume); // file
 
-      const res = await axios.post('http://localhost:5000/api/applications/apply', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
+      const res = await axios.post(
+        'http://localhost:5000/api/applications/apply',
+        formData
+      );
       setToast({ message: res.data.message || 'Application submitted successfully!', type: 'success' });
-      
+
       // Clear Form
       setFullName('');
       setEmail('');
       setPhone('');
       setCoverLetter('');
       setResume(null);
-      
+
       // Reset input element
       const fileInput = document.getElementById('resume-file-input');
       if (fileInput) fileInput.value = '';
@@ -124,7 +125,7 @@ const JobDetails = () => {
   return (
     <div className="pt-28 pb-16 bg-secondary-light min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Back Link */}
         <Link to="/jobs" className="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-dark hover:text-accent transition-colors mb-8 font-sans">
           <ArrowLeft size={14} />
@@ -133,7 +134,7 @@ const JobDetails = () => {
 
         {/* Main Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Left Column: Job Details */}
           <div className="lg:col-span-2 space-y-8">
             {/* Header Block */}
@@ -142,7 +143,7 @@ const JobDetails = () => {
                 {job.category?.name}
               </span>
               <h1 className="text-3xl font-serif text-dark font-medium leading-tight">{job.title}</h1>
-              
+
               {/* Info Widgets Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-y border-slate-100 py-6 my-2 text-xs text-dark-muted font-sans">
                 <div className="space-y-1">
@@ -167,6 +168,20 @@ const JobDetails = () => {
                   </span>
                 </div>
               </div>
+              <div className="space-y-1">
+  <label className="font-semibold text-dark-light">
+    Experience *
+  </label>
+
+  <input
+    type="text"
+    required
+    value={experience}
+    onChange={(e) => setExperience(e.target.value)}
+    className="w-full bg-secondary-light border border-slate-200 p-2.5 rounded focus:border-gold outline-none"
+    placeholder="e.g. 2 Years"
+  />
+</div>
 
               {/* Skills Tags */}
               {skillsList.length > 0 && (
@@ -205,14 +220,14 @@ const JobDetails = () => {
 
           {/* Right Column: Apply Form & Similar Jobs */}
           <div className="lg:col-span-1 space-y-8">
-            
+
             {/* Apply Form */}
             <div className="bg-white rounded-lg border border-slate-100 p-6 shadow-sm space-y-6">
               <h2 className="font-serif text-base font-semibold text-dark border-b border-slate-100 pb-3 flex items-center space-x-2">
                 <FileText size={18} className="text-gold" />
                 <span>Apply For This Position</span>
               </h2>
-              
+
               <form onSubmit={handleApply} className="space-y-4 font-sans text-xs">
                 {/* Full Name */}
                 <div className="space-y-1">

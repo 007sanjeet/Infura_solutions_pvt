@@ -66,7 +66,7 @@ const BannerManagement = () => {
       setLinkUrl('/jobs');
       setOrder('0');
       setBannerFile(null);
-      
+
       const fileInput = document.getElementById('banner-file-input');
       if (fileInput) fileInput.value = '';
 
@@ -91,7 +91,7 @@ const BannerManagement = () => {
 
   return (
     <div className="space-y-6 font-sans">
-      
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -135,7 +135,7 @@ const BannerManagement = () => {
                 placeholder="e.g. Connecting Elite Corporate Talent"
               />
             </div>
-            
+
             <div className="space-y-1 sm:col-span-2">
               <label className="font-semibold">Subtitle Description</label>
               <input
@@ -221,12 +221,17 @@ const BannerManagement = () => {
                     src={`http://localhost:5000/${ban.imageUrl}`}
                     alt={ban.title}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      console.log('Image failed:', ban.imageUrl);
+                      e.target.src =
+                        'https://via.placeholder.com/600x300?text=No+Image';
+                    }}
                   />
                   <div className="absolute top-2 left-2 bg-slate-950/80 text-gold text-[9px] font-bold py-0.5 px-2 rounded-full">
                     Order: {ban.order}
                   </div>
                 </div>
-                
+
                 <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
                   <div className="space-y-1">
                     <h4 className="font-serif text-sm font-semibold text-dark leading-tight">{ban.title}</h4>

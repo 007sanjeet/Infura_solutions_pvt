@@ -2,12 +2,20 @@ const { PrismaClient } = require('@prisma/client');
 const path = require('path');
 const fs = require('fs');
 const sendEmail = require('../utils/email');
+const sendApplicationEmail = require('../utils/sendEmail');
 
 const prisma = new PrismaClient();
 
 const apply = async (req, res, next) => {
   try {
-    const { jobId, fullName, email, phone, coverLetter } = req.body;
+    const {
+  jobId,
+  fullName,
+  email,
+  phone,
+  experience,
+  coverLetter
+} = req.body;
 
     if (!jobId || !fullName || !email || !phone) {
       return res.status(400).json({ error: 'Job ID, Full Name, Email, and Phone number are required.' });
@@ -34,16 +42,29 @@ const apply = async (req, res, next) => {
       : resumePath;
 
     // Save in DB
-    const application = await prisma.application.create({
-      data: {
-        jobId,
-        fullName,
-        email,
-        phone,
-        coverLetter,
-        resumePath: relativePath,
-      },
-    });
+ const application = await prisma.application.create({
+  data: {
+    jobId,
+    fullName,
+    email,
+    phone,
+    coverLetter,
+    resumePath: relativePath,
+  },
+});
+
+// Send email to HR/Admin Gmail
+await sendApplicationEmail(
+  {
+    fullName,
+    email,
+    phone,
+    position: job.title,
+    experience,
+    coverLetter,
+  },
+  req.file.path
+);
 
     // Send confirmation email asynchronously
     try {
@@ -65,7 +86,8 @@ const apply = async (req, res, next) => {
           <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 8px; font-size: 12px; color: #64748b;">
             Best regards,<br/>
             <strong>Infura Solutions Recruitment Team</strong><br/>
-            Canary Wharf, London, UK
+            noida uttar pradesh<br/>
+            +91 98765 43210<br/>
           </p>
         </div>
       `;

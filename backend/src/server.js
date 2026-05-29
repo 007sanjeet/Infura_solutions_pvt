@@ -2,12 +2,31 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 const app = express();
 
 const PORT = process.env.PORT || 5000;
+
+// ---------------- CREATE UPLOAD FOLDERS ---------------- //
+const uploadsDir = path.resolve(process.cwd(), 'uploads');
+const mediaDir = path.join(uploadsDir, 'media');
+
+// Create uploads folder if not exists
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Create media folder if not exists
+if (!fs.existsSync(mediaDir)) {
+  fs.mkdirSync(mediaDir, { recursive: true });
+}
+
+console.log('Uploads Folder:', uploadsDir);
+console.log('Media Folder:', mediaDir);
 
 // ---------------- MIDDLEWARE ---------------- //
 app.use(cors());
@@ -20,8 +39,34 @@ app.use(
   })
 );
 
+// ---------------- STATIC FILES ---------------- //
+// Access files using:
+// http://localhost:5000/uploads/media/file.jpg
+app.use('/uploads', express.static(uploadsDir));
+
+// ---------------- DEBUG ROUTE ---------------- //
+app.get('/debug-upload', (req, res) => {
+  try {
+    const files = fs.existsSync(mediaDir)
+      ? fs.readdirSync(mediaDir)
+      : [];
+
+    res.status(200).json({
+      uploadsDir,
+      mediaDir,
+      exists: fs.existsSync(mediaDir),
+      totalFiles: files.length,
+      files,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 // ---------------- ROUTE IMPORTS ---------------- //
-// FIXED PATHS (removed extra /src)
 const authRoutes = require('./routes/auth');
 const settingsRoutes = require('./routes/settings');
 const jobsRoutes = require('./routes/jobs');
@@ -43,6 +88,14 @@ app.get('/api/admin', (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Admin API Working Successfully',
+  });
+});
+
+// ---------------- HEALTH CHECK ---------------- //
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Infura Solutions API is active.',
   });
 });
 
@@ -69,7 +122,6 @@ app.use('*', (req, res) => {
 // ---------------- SERVER START ---------------- //
 async function startServer() {
   try {
-    // Connect PostgreSQL
     await prisma.$connect();
 
     console.log(
@@ -78,12 +130,12 @@ async function startServer() {
 
     app.listen(PORT, () => {
       console.log(
-        `Server running in development mode on http://localhost:${PORT}`
+        `Server running on http://localhost:${PORT}`
       );
     });
   } catch (error) {
     console.error(
-      'Error starting server or connecting database:',
+      'Error starting server:',
       error
     );
 
@@ -93,18 +145,28 @@ async function startServer() {
 
 // ---------------- GRACEFUL SHUTDOWN ---------------- //
 process.on('SIGINT', async () => {
-  await prisma.$disconnect();
+  try {
+    await prisma.$disconnect();
 
-  console.log(
-    'Database disconnected. Exiting...'
-  );
+    console.log(
+      'Database disconnected. Exiting...'
+    );
 
-  process.exit(0);
+    process.exit(0);
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
 });
 
 process.on('SIGTERM', async () => {
-  await prisma.$disconnect();
-  process.exit(0);
+  try {
+    await prisma.$disconnect();
+    process.exit(0);
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
 });
 
 // ---------------- START APP ---------------- //

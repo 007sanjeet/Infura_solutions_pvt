@@ -61,8 +61,8 @@ async function main() {
     create: {
       id: 'default-settings',
       companyName: 'Infura Solutions',
-      address: '77 Premium Suite, Canary Wharf, London, UK',
-      phone: '+44 20 7946 0958',
+      address: 'Noida, Uttar Pradesh',
+      phone: '+91 98765 43210',
       email: 'info@infurasolutions.com',
       logoUrl: '',
       socialLinks: {
